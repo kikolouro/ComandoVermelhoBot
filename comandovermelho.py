@@ -21,42 +21,53 @@ class discordBot(discord.Client):
         msg = str(message.content)
 
         if message.content.startswith('!removeuser') and message.author.id != self.user.id:
+            flag = True
+            for role in message.author.roles:
+                if role.name == config("ADMINROLE"):
+                    flag = False
+                    await message.add_reaction('🤔')
+                    if len(msg.split()) == 1:
+                        await message.channel.send(f"<@!{message.author.id}> Tens que mencionar alguem oh burro")
+                        return
+                    elif len(msg.split()) > 2:
+                        await message.channel.send(f"<@!{message.author.id}> Não sejas burro e faz as merdas direito")
+                        return
 
-            await message.add_reaction('🤔')
-            if len(msg.split()) == 1:
-                await message.channel.send(f"<@!{message.author.id}> Tens que mencionar alguem oh burro")
-                return
-            elif len(msg.split()) > 2:
-                await message.channel.send(f"<@!{message.author.id}> Não sejas burro e faz as merdas direito")
-                return
+                    userid = msg.split()[1].replace(
+                        '<', '').replace('>', '').replace('@', '')
 
-            userid = msg.split()[1].replace(
-                '<', '').replace('>', '').replace('@', '')
+                    if db.removeUser(userid):
+                        await logToChannel(f"<@!{message.author.id}> Removeu o <@!{userid}>. Adeus cabrão.", config('CHANNEL_LOG'))
+                    else:
+                        await message.channel.send(f"<@!{message.author.id}> Já existe o <@!{userid}>. Deixa de ser burro")
+                    return
+            if flag:
+                await message.channel.send(f"<@!{message.author.id}> não tens permissão para fazer isto nabo.")
 
-            if db.removeUser(userid):
-                await logToChannel(f"<@!{message.author.id}> Removeu o <@!{userid}>. Adeus cabrão.", config('CHANNEL_LOG'))
-            else:
-                await message.channel.send(f"<@!{message.author.id}> Já existe o <@!{userid}>. Deixa de ser burro")
-            return
 
         if message.content.startswith('!adduser') and message.author.id != self.user.id:
-
             await message.add_reaction('🤔')
-            if len(msg.split()) == 1:
-                await message.channel.send(f"<@!{message.author.id}> Tens que mencionar alguem oh burro")
-                return
-            elif len(msg.split()) > 2:
-                await message.channel.send(f"<@!{message.author.id}> Não sejas burro e faz as merdas direito")
-                return
-            userid = msg.split()[1].replace(
-                '<', '').replace('>', '').replace('@', '')
+            flag = True
+            for role in message.author.roles:
+                if role.name == config("ADMINROLE"):
+                    flag = False
+                    if len(msg.split()) == 1:
+                        await message.channel.send(f"<@!{message.author.id}> Tens que mencionar alguem oh burro")
+                        return
+                    elif len(msg.split()) > 2:
+                        await message.channel.send(f"<@!{message.author.id}> Não sejas burro e faz as merdas direito")
+                        return
+                    userid = msg.split()[1].replace(
+                        '<', '').replace('>', '').replace('@', '')
 
-            user = await client.fetch_user(int(userid))
-            if db.addUser(userid, str(user)):
-                await logToChannel(f"<@!{message.author.id}> Adicionou o <@!{userid}>.", config('CHANNEL_LOG'))
-            else:
-                await message.channel.send(f"<@!{message.author.id}> Já existe o <@!{userid}>. Deixa de ser burro")
-            return
+                    user = await client.fetch_user(int(userid))
+                    if db.addUser(userid, str(user)):
+                        await logToChannel(f"<@!{message.author.id}> Adicionou o <@!{userid}>.", config('CHANNEL_LOG'))
+                    else:
+                        await message.channel.send(f"<@!{message.author.id}> Já existe o <@!{userid}>. Deixa de ser burro")
+                    return
+            if flag:
+                await message.channel.send(f"<@!{message.author.id}> não tens permissão para fazer isto nabo.")
 
         if message.content.startswith('!coca') and message.author.id != self.user.id:
             await message.add_reaction('🤔')
@@ -70,13 +81,28 @@ class discordBot(discord.Client):
                 return
 
             amount = int(msg.split()[1])
-            await logToChannel(f"<@!{message.author.id}> Farmou {amount} {command}", config('CHANNEL_LOG'))
-
+            if db.addDrug(message.author.id, "coca", amount):
+                await logToChannel(f"<@!{message.author.id}> Farmou {amount} {command}", config('CHANNEL_LOG'))
             return
 
         if message.content.startswith('!getinfo') and message.author.id != self.user.id:
-
-            await message.channel.send("<@!" + "264507064863162368" + "> Burro")
+            await message.add_reaction('🤔')
+            if len(msg.split()) == 1:
+                data = db.getAllUserDrugs()
+                for user in data:
+                    e = discord.Embed(title=f"Stats do burro: " + data[user]["name"],
+                                      description="", colour=0xfc03ca)
+                    e.add_field(name="Erva:", value=str(
+                        data[user]["erva"]) + "\n", inline=True)
+                    e.add_field(name="Coca:", value=str(
+                        data[user]["coca"]) + "\n", inline=True)
+                    e.add_field(name="Opio:", value=str(
+                        data[user]["opio"]) + "\n", inline=True)
+                    e.add_field(name="Meta:", value=str(
+                        data[user]["meta"]) + "\n", inline=True)
+                    await message.channel.send("", embed=e)
+            else:
+                await message.channel.send("<@!" + message.author.id + "> Deixa de ser mongloide.")
             return
 
 

@@ -5,7 +5,7 @@ __pycache__/
 data.json
 # C extensions
 *.so
-
+goal.txt
 # Distribution / packaging
 .Python
 build/
