@@ -106,6 +106,54 @@ class discordBot(discord.Client):
             return
 
 
+        if message.content.startswith('!erva') and message.author.id != self.user.id:
+            await message.add_reaction('🤔')
+            command = 'erva'
+
+            if len(msg.split()) == 1:
+                await message.channel.send(f"<@!{message.author.id}> Não sejas burro, mete a quantidade de {command} que farmaste!")
+                return
+            elif len(msg.split()) > 2 or not msg.split()[1].isdigit() or int(msg.split()[1]) < 1:
+                await message.channel.send(f"<@!{message.author.id}> Não sejas atrasado mental e mete apenas a quantidade de {command} que farmaste!")
+                return
+
+            amount = int(msg.split()[1])
+            if db.addDrug(message.author.id, "erva", amount):
+                await logToChannel(f"<@!{message.author.id}> Farmou {amount} {command}", config('CHANNEL_LOG'))
+            return
+
+        if message.content.startswith('!meta') and message.author.id != self.user.id:
+            await message.add_reaction('🤔')
+            command = 'meta'
+
+            if len(msg.split()) == 1:
+                await message.channel.send(f"<@!{message.author.id}> Não sejas burro, mete a quantidade de {command} que farmaste!")
+                return
+            elif len(msg.split()) > 2 or not msg.split()[1].isdigit() or int(msg.split()[1]) < 1:
+                await message.channel.send(f"<@!{message.author.id}> Não sejas atrasado mental e mete apenas a quantidade de {command} que farmaste!")
+                return
+
+            amount = int(msg.split()[1])
+            if db.addDrug(message.author.id, "meta", amount):
+                await logToChannel(f"<@!{message.author.id}> Farmou {amount} {command}", config('CHANNEL_LOG'))
+            return
+
+        if message.content.startswith('!opio') and message.author.id != self.user.id:
+            await message.add_reaction('🤔')
+            command = 'opio'
+
+            if len(msg.split()) == 1:
+                await message.channel.send(f"<@!{message.author.id}> Não sejas burro, mete a quantidade de {command} que farmaste!")
+                return
+            elif len(msg.split()) > 2 or not msg.split()[1].isdigit() or int(msg.split()[1]) < 1:
+                await message.channel.send(f"<@!{message.author.id}> Não sejas atrasado mental e mete apenas a quantidade de {command} que farmaste!")
+                return
+
+            amount = int(msg.split()[1])
+            if db.addDrug(message.author.id, "opio", amount):
+                await logToChannel(f"<@!{message.author.id}> Farmou {amount} {command}", config('CHANNEL_LOG'))
+            return
+
 db = dbHandler(config('DBFILE'))
 client = discordBot()
 client.run(config("DISCORD_TOKEN"))
